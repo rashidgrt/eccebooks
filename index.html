@@ -79,6 +79,18 @@
   .theme-toggle .moon{fill:var(--text-dim);}
   html.light .theme-toggle .moon{fill:var(--amber);}
 
+  .clock{
+    position:absolute;
+    top:68px;
+    right:0;
+    text-align:right;
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--text-faint);
+    white-space:nowrap;
+  }
+  .clock .d{color:var(--text-dim);}
+
   /* ---------- layout shell ---------- */
   .shell{
     max-width:980px;
@@ -89,6 +101,13 @@
     padding:28px 0 18px;
     border-bottom:1px solid var(--line);
     margin-bottom:22px;
+    padding-right:100px;
+  }
+  @media (max-width:480px){
+    header.top{ padding-right:78px; }
+    .theme-toggle{ top:20px; width:30px; height:30px; }
+    .theme-toggle svg{ width:14px; height:14px; }
+    .clock{ top:58px; font-size:10px; }
   }
   .eyebrow{
     font-family:var(--mono);
@@ -350,6 +369,30 @@
   table.books td.toggle{width:120px; text-align:right;}
   table.books tr.hidden{display:none;}
 
+  @media (max-width:700px){
+    table.books, table.books tbody{ display:block; width:100%; }
+    table.books tr{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      column-gap:10px;
+      row-gap:6px;
+      padding:10px 14px;
+      border-bottom:1px solid var(--line);
+    }
+    table.books td{ padding:0; border:none; font-size:12.5px; }
+    table.books td.sr{ order:0; flex:0 0 auto; }
+    table.books td.title{ order:1; flex:1 1 100%; min-width:0; }
+    table.books td.subj{ order:2; flex:0 1 auto; white-space:normal; width:auto; }
+    table.books td.toggle{ order:3; flex:0 0 auto; margin-left:auto; width:auto; }
+    .yn button{ padding:6px 10px; font-size:10.5px; }
+  }
+  @media (max-width:400px){
+    table.books tr{ padding:9px 12px; }
+    table.books td.subj{ display:none; }
+    .yn button{ padding:5px 8px; font-size:10px; }
+  }
+
   .yn{
     display:inline-flex;
     border:1px solid var(--line);
@@ -437,9 +480,10 @@
     <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" title="Toggle light / dark theme">
       <svg class="moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.7 15.3A9 9 0 1 1 8.7 3.3a7 7 0 0 0 12 12z"/></svg>
     </button>
+    <div class="clock" id="clock"></div>
     <div class="eyebrow">Punjab Education Sector Reform Programme · School Education Department, Government of the Punjab</div>
     <h1>List of ECE Corner Books under STG Program (PECTAA-Approved)</h1>
-    <div class="sub">Select your school, then mark which PECTAA-approved books you want to purchase.</div>
+    <div class="sub">Select your school, then mark which PECTAA-approved books are physically present in the ECE corner. The summary on the right updates as you go.</div>
     <div class="officer-tag">
       <div class="officer-name">Rashid Mahmood Azam</div>
       <div class="officer-title">Assistant Education Officer</div>
@@ -513,6 +557,19 @@
       var light = document.documentElement.classList.toggle('light');
       themeBtn.setAttribute('aria-pressed', light ? 'true' : 'false');
     });
+  }
+
+  /* ---------------- live clock (Pakistan Standard Time, GMT+5) ---------------- */
+  var clockEl = document.getElementById('clock');
+  if(clockEl){
+    var dateFmt = new Intl.DateTimeFormat('en-GB', { timeZone:'Asia/Karachi', day:'2-digit', month:'short', year:'numeric' });
+    var timeFmt = new Intl.DateTimeFormat('en-GB', { timeZone:'Asia/Karachi', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+    function renderClock(){
+      var now = new Date();
+      clockEl.innerHTML = '<span class="d">' + dateFmt.format(now) + '</span> · ' + timeFmt.format(now) + ' PKT';
+    }
+    renderClock();
+    setInterval(renderClock, 1000);
   }
 
   /* =========================================================
