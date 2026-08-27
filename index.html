@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECE Corner Books — School Survey</title>
+<style>
+  :root{
+    --bg: #0b0f14;
+    --panel: #121821;
+    --panel-2: #171f2b;
+    --line: #232d3b;
+    --text: #e7edf5;
+    --text-dim: #8b98ab;
+    --text-faint: #5b6779;
+    --accent: #4fd1a5;
+    --accent-dim: #245e49;
+    --accent-glow: rgba(79,209,165,0.14);
+    --amber: #e8b04b;
+    --red: #e5626b;
+    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --radius: 6px;
+  }
+  @font-face{
+    font-family:'IBM Plex Sans';
+    src: local('IBM Plex Sans');
+  }
+  html.light{
+    --bg: #f4f6f9;
+    --panel: #ffffff;
+    --panel-2: #eef1f6;
+    --line: #dbe1ea;
+    --text: #141a22;
+    --text-dim: #566072;
+    --text-faint: #8892a2;
+    --accent: #1f9c74;
+    --accent-dim: #bfe9d8;
+    --accent-glow: rgba(31,156,116,0.10);
+    --amber: #a9750f;
+    --red: #c8434c;
+  }
+  html.light .yn button.yes.on{color:#eafff5;}
+  html.light .yn button.no.on{color:#fff0f1;}
+  html.light .submit-bar{background:rgba(244,246,249,0.92);}
+  html.light .btn.primary{color:#f4fffb;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    transition:background .15s, color .15s;
+  }
+  a{color:var(--accent);}
+
+  /* ---------------- theme toggle button ---------------- */
+  .theme-toggle{
+    position:absolute;
+    top:26px;
+    right:0;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    transition:border-color .15s;
+  }
+  .theme-toggle:hover{border-color:var(--accent);}
+  .theme-toggle svg{width:16px; height:16px; display:block;}
+  .theme-toggle .moon{fill:var(--text-dim);}
+  html.light .theme-toggle .moon{fill:var(--amber);}
+
+  /* ---------- layout shell ---------- */
+  .shell{
+    max-width:980px;
+    margin:0 auto;
+    padding:0 16px 140px;
+  }
+  header.top{
+    padding:28px 0 18px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:22px;
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:8px;
+  }
+  h1{
+    font-size:22px;
+    font-weight:600;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    color:var(--text-dim);
+    font-size:13px;
+    max-width:640px;
+  }
+  .officer-tag{
+    margin-top:16px;
+    padding-top:12px;
+    border-top:1px dashed var(--line);
+    display:inline-block;
+  }
+  .officer-name{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text);
+  }
+  .officer-title{
+    font-size:11px;
+    color:var(--text-faint);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    margin-top:2px;
+  }
+
+  /* ---------- generic card ---------- */
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 20px;
+    margin-bottom:16px;
+  }
+  .card h2{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-dim);
+    margin:0 0 14px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .rules-note{
+    font-size:11.5px;
+    color:var(--text-faint);
+    margin:-8px 0 14px;
+  }
+
+  /* ---------- school selector ---------- */
+  .school-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:14px;
+  }
+  @media (max-width:640px){ .school-grid{grid-template-columns:1fr;} }
+  .field label{
+    display:block;
+    font-size:11px;
+    color:var(--text-faint);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin-bottom:6px;
+  }
+  select, input[type=text]{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:9px 10px;
+    border-radius:4px;
+    font-family:var(--sans);
+    font-size:13.5px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  select:focus, input[type=text]:focus{
+    border-color:var(--accent);
+  }
+  select{appearance:none; -webkit-appearance:none; cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0 L5 6 L10 0 Z' fill='%238b98ab'/></svg>");
+    background-repeat:no-repeat;
+    background-position:right 10px center;
+    padding-right:28px;
+  }
+
+  /* ---------- summary bar ---------- */
+  .summary-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:10px;
+  }
+  @media (max-width:760px){ .summary-grid{grid-template-columns:repeat(2,1fr);} }
+  .stat{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:11px 12px;
+  }
+  .stat .label{
+    font-size:10.5px;
+    color:var(--text-faint);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin-bottom:6px;
+    min-height:26px;
+  }
+  .stat .val{
+    font-family:var(--mono);
+    font-size:19px;
+    font-weight:600;
+    color:var(--text);
+  }
+  .stat .val small{
+    font-size:12px;
+    font-weight:400;
+    color:var(--text-faint);
+  }
+  .stat .bar{
+    height:3px;
+    background:var(--line);
+    border-radius:2px;
+    margin-top:8px;
+    overflow:hidden;
+  }
+  .stat .bar i{
+    display:block;
+    height:100%;
+    background:var(--accent);
+    width:0%;
+    transition:width .2s;
+  }
+  .stat.total{border-color:var(--accent-dim); background:linear-gradient(180deg, var(--accent-glow), transparent 70%);}
+  .stat.total .val{color:var(--accent);}
+
+  /* ---------- controls row above book list ---------- */
+  .list-controls{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+  }
+  .list-controls input[type=text]{max-width:280px;}
+  .btn{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:8px 13px;
+    border-radius:4px;
+    font-size:12.5px;
+    cursor:pointer;
+    font-family:var(--sans);
+    white-space:nowrap;
+    transition:border-color .15s, color .15s;
+  }
+  .btn:hover{border-color:var(--text-dim); color:var(--text);}
+  .btn.small{padding:5px 10px; font-size:11.5px;}
+  .btn.ghost{background:transparent;}
+  .spacer{flex:1;}
+
+  /* ---------- learning area group ---------- */
+  details.group{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:10px;
+    overflow:hidden;
+  }
+  details.group[open] summary{border-bottom:1px solid var(--line);}
+  summary{
+    list-style:none;
+    cursor:pointer;
+    padding:14px 18px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    user-select:none;
+  }
+  summary::-webkit-details-marker{display:none;}
+  summary .chev{
+    font-family:var(--mono);
+    color:var(--text-faint);
+    transition:transform .15s;
+    font-size:11px;
+  }
+  details[open] summary .chev{transform:rotate(90deg);}
+  summary .g-title{font-weight:600; font-size:13.5px; flex:0 0 auto;}
+  summary .g-count{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--text-faint);
+  }
+  summary .g-tally{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--accent);
+    margin-left:auto;
+  }
+  summary .g-bar{
+    width:70px;
+    height:4px;
+    background:var(--line);
+    border-radius:2px;
+    overflow:hidden;
+    flex:0 0 auto;
+  }
+  summary .g-bar i{display:block; height:100%; background:var(--accent); width:0%;}
+
+  .group-actions{
+    padding:8px 18px;
+    display:flex;
+    gap:8px;
+    border-bottom:1px solid var(--line);
+    background:var(--panel-2);
+  }
+
+  table.books{
+    width:100%;
+    border-collapse:collapse;
+  }
+  table.books tr{border-bottom:1px solid var(--line);}
+  table.books tr:last-child{border-bottom:none;}
+  table.books td{
+    padding:9px 18px;
+    vertical-align:middle;
+    font-size:13px;
+  }
+  table.books td.sr{
+    font-family:var(--mono);
+    color:var(--text-faint);
+    width:38px;
+    font-size:11.5px;
+  }
+  table.books td.title{width:auto;}
+  table.books td.title .t{color:var(--text); font-weight:500;}
+  table.books td.title .p{color:var(--text-faint); font-size:11.5px; margin-top:2px;}
+  table.books td.subj{
+    color:var(--text-dim);
+    font-size:12px;
+    width:130px;
+    white-space:nowrap;
+  }
+  table.books td.toggle{width:120px; text-align:right;}
+  table.books tr.hidden{display:none;}
+
+  .yn{
+    display:inline-flex;
+    border:1px solid var(--line);
+    border-radius:5px;
+    overflow:hidden;
+  }
+  .yn button{
+    background:var(--panel-2);
+    border:none;
+    color:var(--text-faint);
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.04em;
+    padding:6px 12px;
+    cursor:pointer;
+  }
+  .yn button.yes.on{background:var(--accent); color:#04140e; font-weight:600;}
+  .yn button.no.on{background:var(--red); color:#2a0709; font-weight:600;}
+  .yn button:not(.on):hover{color:var(--text);}
+  .yn button + button{border-left:1px solid var(--line);}
+
+  /* ---------- submit bar ---------- */
+  .submit-bar{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    background:rgba(11,15,20,0.92);
+    backdrop-filter:blur(8px);
+    border-top:1px solid var(--line);
+    padding:14px 16px;
+    z-index:50;
+  }
+  .submit-inner{
+    max-width:980px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .submit-info{flex:1; font-size:12px; color:var(--text-dim);}
+  .submit-info b{color:var(--text);}
+  #status-msg{font-size:12px; margin-top:2px;}
+  #status-msg.err{color:var(--red);}
+  #status-msg.ok{color:var(--accent);}
+  #status-msg.warn{color:var(--amber);}
+  .btn.primary{
+    background:var(--accent);
+    color:#04140e;
+    border-color:var(--accent);
+    font-weight:600;
+    padding:11px 22px;
+    font-size:13px;
+  }
+  .btn.primary:hover{background:#3fc196;}
+  .btn.primary:disabled{opacity:.5; cursor:not-allowed;}
+
+  .config-warning{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--amber);
+    background:rgba(232,176,75,0.08);
+    border:1px solid rgba(232,176,75,0.3);
+    border-radius:5px;
+    padding:9px 12px;
+    margin-bottom:16px;
+    display:none;
+  }
+  .config-warning.show{display:block;}
+
+  footer.foot{
+    text-align:center;
+    color:var(--text-faint);
+    font-size:11px;
+    padding:24px 0 8px;
+    font-family:var(--mono);
+  }
+
+  ::selection{background:var(--accent-glow);}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <header class="top" style="position:relative;">
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" title="Toggle light / dark theme">
+      <svg class="moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.7 15.3A9 9 0 1 1 8.7 3.3a7 7 0 0 0 12 12z"/></svg>
+    </button>
+    <div class="eyebrow">Punjab Education Sector Reform Programme · School Education Department, Government of the Punjab</div>
+    <h1>List of ECE Corner Books under STG Program (PECTAA-Approved)</h1>
+    <div class="sub">Select your school, then mark which PECTAA-approved books are physically present in the ECE corner. The summary on the right updates as you go.</div>
+    <div class="officer-tag">
+      <div class="officer-name">Rashid Mahmood Azam</div>
+      <div class="officer-title">Assistant Education Officer</div>
+    </div>
+  </header>
+
+  <div id="config-warning" class="config-warning">
+    ⚠ Google Sheet link is not configured yet. Submissions will download as a CSV file instead of saving online. See the note at the bottom of this page / ask for setup instructions.
+  </div>
+
+  <section class="card">
+    <h2>School</h2>
+    <div class="school-grid">
+      <div class="field">
+        <label for="sel-emis">EMIS Code</label>
+        <select id="sel-emis"><option value="">— select —</option></select>
+      </div>
+      <div class="field">
+        <label for="sel-name">School Name</label>
+        <select id="sel-name"><option value="">— select —</option></select>
+      </div>
+      <div class="field">
+        <label for="sel-markaz">Markaz</label>
+        <select id="sel-markaz"><option value="">— select —</option></select>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>ECCE Learning Area — Summary</h2>
+    <div class="rules-note">Rules: at least 1 book must be marked Yes in every Learning Area, and total Yes across all areas must be 50 or more.</div>
+    <div class="summary-grid" id="summary-grid"></div>
+  </section>
+
+  <section>
+    <div class="list-controls">
+      <input type="text" id="filter-box" placeholder="Filter by title, publisher or subject…">
+      <div class="spacer"></div>
+      <button class="btn small" id="expand-all">Expand all</button>
+      <button class="btn small" id="collapse-all">Collapse all</button>
+      <button class="btn small ghost" id="reset-all">Reset all to No</button>
+    </div>
+    <div id="groups"></div>
+  </section>
+
+  <footer class="foot">457 titles · 5 ECCE learning areas · Gujrat District</footer>
+</div>
+
+<div class="submit-bar">
+  <div class="submit-inner">
+    <div class="submit-info">
+      <div><b id="school-confirm">No school selected</b></div>
+      <div id="status-msg"></div>
+    </div>
+    <button class="btn primary" id="submit-btn">Submit Survey</button>
+  </div>
+</div>
+
+<script id="books-data" type="application/json">[{"sr":1,"pub":"A+ plus publishers","title":"Aplus English & Urdu","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":2,"pub":"A+ plus publishers","title":"A PLUS ENGLISH & URDU","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":3,"pub":"AA International Publishing Co","title":"Urdu ka Teesra Qaida","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":4,"pub":"AA International Publishing Co","title":"Urdu ka Dusra Qaida","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":5,"pub":"AA International Publishing Co","title":"Urdu ka Pehla Qaida","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":6,"pub":"AA International Publishing Co","title":"First Book of Math","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":7,"pub":"Aaj Publications","title":"Spirit Phonics Pre I Part I","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":8,"pub":"Aaj Publications","title":"Urdu Boltay Haroof, Pre-I, Part I, Notebook-I","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":9,"pub":"Aaj Publications","title":"Boltay Haroof Pre 1 Part I Workbook (SRM)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":10,"pub":"Aaj Publications","title":"Boltay Haroof Pre-I Part II (SRM)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":11,"pub":"Aaj Publications","title":"Playing with Numbers Pre-1 Part II (SRM)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":12,"pub":"Aaj Publications","title":"World we live in Pre-1 Part II (SRM)","subj":"Social Studies","grade":"Pre-I","la":"World Around Us"},{"sr":13,"pub":"Aaj Publications","title":"Spirit Phonics Pre-I Part II Workbook SRM","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":14,"pub":"Aaj Publications","title":"Boltay Haroof Pre I Part II Workbook SRM","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":15,"pub":"Aaj Publications","title":"World We Live In Pre-I","subj":"Social Science","grade":"Pre-I","la":"World Around Us"},{"sr":16,"pub":"Aaj Publications","title":"Kingdom Phonics Pre-I Workbook (SRM)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":17,"pub":"Aaj Publications","title":"Spirit Phonics Pre-I Part II SRM","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":18,"pub":"Afaq Association","title":"AFAQ Iqbal Series Art & Drawing Pre Nursery","subj":"Art and Drawing","grade":"Pre-I","la":"Creative Arts"},{"sr":19,"pub":"Afaq Association","title":"AFAQ Iqbal Series Art & Drawing Nursery","subj":"Art and Drawing","grade":"Pre-I","la":"Creative Arts"},{"sr":20,"pub":"Afaq Association","title":"AFAQ Iqbal Series Art & Drawing Kindergarten","subj":"Art and Drawing","grade":"Pre-I","la":"Creative Arts"},{"sr":21,"pub":"Ameer Haider & Company.","title":"Hamza abc Book (4+Age)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":22,"pub":"Ameer Haider & Company.","title":"Hamza 123 (3+Age)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":23,"pub":"Ameer Haider & Company.","title":"Hamza 123 Book (4+Age)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":24,"pub":"Ameer Haider & Company.","title":"Hamza Alif Bay Pay (3+Age)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":25,"pub":"Ameer Haider & Company.","title":"Hamza Alif Bay Pay Qaida (4+Age)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":26,"pub":"AMERCIAN LYCETUFF","title":"Kiddycare Math","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":27,"pub":"AMERCIAN LYCETUFF","title":"English (1st Term)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":28,"pub":"AMERCIAN LYCETUFF","title":"My Activity Fun Book","subj":"Art and Drawing","grade":"Pre-I","la":"Creative Arts"},{"sr":29,"pub":"Book Group","title":"Andar Ooper","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":30,"pub":"Book Group","title":"Ghora Gari","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":31,"pub":"Book Time Publication","title":"Mathematics Pre-I Play Group","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":32,"pub":"Book Time Publication","title":"English Play Group","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":33,"pub":"Book Time Publication","title":"English Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":34,"pub":"Book Time Publication","title":"English Prep","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":35,"pub":"Book Time Publication","title":"Mathematics Nursery","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":36,"pub":"Book Time Publication","title":"Mathematics Prep","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":37,"pub":"Bookbro Publishers","title":"ENGLISH GRAMMAR Prep","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":38,"pub":"Cambridge university Press","title":"Early Years Leaners Book 1A","subj":"Social Science","grade":"Pre-I","la":"World Around Us"},{"sr":39,"pub":"Cambridge university Press","title":"Early Years Leaners Book 1B","subj":"Social Science","grade":"Pre-I","la":"World Around Us"},{"sr":40,"pub":"Cambridge university Press","title":"Early Years Leaners Book 1C","subj":"Social Science","grade":"Pre-I","la":"World Around Us"},{"sr":41,"pub":"Cambridge university Press","title":"Cambridge Early Years Communication and Language for English as a First Language Learners Book 2A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":42,"pub":"Cambridge university Press","title":"Cambridge Early Years Communication and Language for English as a First Language Learners Book 2B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":43,"pub":"Cambridge university Press","title":"Cambridge Early Years Communication and Language for English as a First Language Learners Book 2C","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":44,"pub":"Cambridge university Press","title":"Cambridge Early Years Communication and Language for English as a First Language Learners Book 3A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":45,"pub":"Cambridge university Press","title":"Cambridge Early Years Communication and Language for English as a First Language Learners Book 3B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":46,"pub":"Cambridge university Press","title":"Cambridge Early Years Communication and Language for English as a First Language Learners Book 3C","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":47,"pub":"Cambridge university Press","title":"Cambridge Early Years Mathematics 2A","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":48,"pub":"Cambridge university Press","title":"Cambridge Early Years Mathematics 2B","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":49,"pub":"Cambridge university Press","title":"Cambridge Early Years Mathematics 2C","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":50,"pub":"Cambridge university Press","title":"Cambridge Early Years Mathematics 3A","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":51,"pub":"Cambridge university Press","title":"Cambridge Early Years Mathematics 3B","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":52,"pub":"Cambridge university Press","title":"Cambridge Early Years Mathematics 3C","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":53,"pub":"Cambridge university Press","title":"Cambridge Early Years Lets Explore Learners Book 2A","subj":"Social Science","grade":"Pre-I","la":"World Around Us"},{"sr":54,"pub":"Cambridge university Press","title":"Cambridge Early Years Lets Explore Learners Book 2B","subj":"Social Science","grade":"Pre-I","la":"World Around Us"},{"sr":55,"pub":"Cambridge university Press","title":"Cambridge Early Years Lets Explore Learners Book 2C","subj":"Social Science","grade":"Pre-I","la":"World Around Us"},{"sr":56,"pub":"Cambridge university Press","title":"Cambridge Early Years Lets Explore Learners Book 3A","subj":"Social Science","grade":"Pre-I","la":"World Around Us"},{"sr":57,"pub":"Cambridge university Press","title":"Cambridge Early Years Lets Explore Learners Book 3B","subj":"Social Science","grade":"Pre-I","la":"World Around Us"},{"sr":58,"pub":"Cambridge university Press","title":"Cambridge Early Years Lets Explore Learners Book 3C","subj":"Social Science","grade":"Pre-I","la":"World Around Us"},{"sr":59,"pub":"Cambridge university Press","title":"Cambridge Early Years Communication and Language for English as a Second Language Learners Book 2A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":60,"pub":"Cambridge university Press","title":"Cambridge Early Years Communication and Language for English as a Second Language Learners Book 2B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":61,"pub":"Cambridge university Press","title":"Cambridge Early Years Communication and Language for English as a Second Language Learners Book 2C","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":62,"pub":"Cambridge university Press","title":"Cambridge Early Years Communication and Language for English as a Second Language Learners Book 3A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":63,"pub":"Cambridge university Press","title":"Cambridge Early Years Communication and Language for English as a Second Language Learners Book 3B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":64,"pub":"Cambridge university Press","title":"Cambridge Early Years Communication and Language for English as a Second Language Learners Book 3C","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":65,"pub":"Character Education Foundation.","title":"Tajweedi Qaida Ibtdai","subj":"Teaching of Holy Quran","grade":"Pre-I","la":"Language and Literacy"},{"sr":66,"pub":"Character Education Foundation.","title":"payam e urdu","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":67,"pub":"Character Education Foundation.","title":"Urdu Qaida Abtadai","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":68,"pub":"Character Education Foundation.","title":"payam e urdu","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":69,"pub":"Danesh Publications (Pvt) Limited","title":"Head Start Red-KG","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":70,"pub":"Danesh Publications (Pvt) Limited","title":"Head Start Blue-KG","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":71,"pub":"Danesh Publications (Pvt) Limited","title":"Lets Read Level 1- Helping Mum","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":72,"pub":"Danesh Publications (Pvt) Limited","title":"Lets Read Level 1- The Bad Bug","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":73,"pub":"Danesh Publications (Pvt) Limited","title":"Lets Read Level 1- Pick and Peg","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":74,"pub":"Danesh Publications (Pvt) Limited","title":"Lets Read Level 1- Get on it","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":75,"pub":"Danesh Publications (Pvt) Limited","title":"Lets Read Level 2- Back to Back","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":76,"pub":"Danesh Publications (Pvt) Limited","title":"Lets Read Level 2- Three Billy Goats","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":77,"pub":"Danesh Publications (Pvt) Limited","title":"Lets Read Level 2- Fun With Dad","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":78,"pub":"Danesh Publications (Pvt) Limited","title":"Lets Read Level 2- Goldilocks","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":79,"pub":"Danesh Publications (Pvt) Limited","title":"Lets Read Level 1- Back to Bed","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":80,"pub":"Danesh Publications (Pvt) Limited","title":"Lets Read Level 1- Fun Run","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":81,"pub":"Danesh Publications (Pvt) Limited","title":"Lets Read Level 2- Days Out","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":82,"pub":"Danesh Publications (Pvt) Limited","title":"Lets Read Level 2- The Cooking Pot","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":83,"pub":"Danesh Publications (Pvt) Limited","title":"New Phonics Stage-1","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":84,"pub":"Danesh Publications (Pvt) Limited","title":"New Phonics Stage-2","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":85,"pub":"Danesh Publications (Pvt) Limited","title":"New Phonics Stage-3","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":86,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years English Reading Skills - Intro","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":87,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years English Reading Skills - 1","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":88,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years English Reading Skills - 2","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":89,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years English Writing Skills - Intro","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":90,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years English Writing Skills - 1","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":91,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years English Writing Skills - 2","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":92,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years Numeracy Skills - Intro","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":93,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years Numeracy Skills - 1","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":94,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years Numeracy Skills - 2","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":95,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years Urdu Reading Skills - Intro","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":96,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years Urdu Reading Skills - 1","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":97,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years Urdu Reading Skills - 2","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":98,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years Urdu Writing Skills - Intro","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":99,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years Urdu Writing Skills - 1","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":100,"pub":"Danesh Publications (Pvt) Limited","title":"Early Years Urdu Writing Skills - 2","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":101,"pub":"EM KAY Books.","title":"Rising Stars Mathematical Operations","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":102,"pub":"EM KAY Books.","title":"Rising Stars Mathematical Operations C","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":103,"pub":"EM KAY Books.","title":"Sip It, Pat","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":104,"pub":"EM KAY Books.","title":"Tip, Tip","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":105,"pub":"EM KAY Books.","title":"Sid Did It","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":106,"pub":"EM KAY Books.","title":"Is Sam Sad?","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":107,"pub":"EM KAY Books.","title":"Sam and Kit Can Nap","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":108,"pub":"EM KAY Books.","title":"Kick It In","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":109,"pub":"EM KAY Books.","title":"The Bill Fell","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":110,"pub":"EM KAY Books.","title":"I am Nick","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":111,"pub":"EM KAY Books.","title":"The Fusspot Bill","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":112,"pub":"EM KAY Books.","title":"The Mix","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":113,"pub":"EM KAY Books.","title":"Rocket to the Moon","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":114,"pub":"EM KAY Books.","title":"Hats","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":115,"pub":"EM KAY Books.","title":"The Long Red Coat","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":116,"pub":"EM KAY Books.","title":"Sheepdogs","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":117,"pub":"EM KAY Books.","title":"Never-Never Nick","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":118,"pub":"EM KAY Books.","title":"The Top of the Hut Gang","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":119,"pub":"EM KAY Books.","title":"On Wood Park Farm","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":120,"pub":"EM KAY Books.","title":"Is It Hot?","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":121,"pub":"EM KAY Books.","title":"Ping Pong Panda","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":122,"pub":"EM KAY Books.","title":"Three Clues","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":123,"pub":"EM KAY Books.","title":"Neat and Clean","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":124,"pub":"EM KAY Books.","title":"The Stripy Sock Maths Story Book A","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":125,"pub":"EM KAY Books.","title":"A Day at the Beach Maths Story Book B","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":126,"pub":"EM KAY Books.","title":"The Surprise Party Maths Story Book C","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":127,"pub":"EM KAY Books.","title":"Hodder Cambridge Primary Maths Activity Book A","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":128,"pub":"EM KAY Books.","title":"Hodder Cambridge Primary Maths Activity Book B","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":129,"pub":"EM KAY Books.","title":"Hodder Cambridge Primary Maths Activity Book C","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":130,"pub":"FPC-Frontline Publishing Company","title":"Meri Dost Urdu Prep/KG","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":131,"pub":"FPC-Frontline Publishing Company","title":"Meri Dost Urdu Silsila Chooza Barai Jamat Play Group","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":132,"pub":"FPC-Frontline Publishing Company","title":"Meri Dost Urdu Silsila Titli Barai Jamat Nursery","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":133,"pub":"FPC-Frontline Publishing Company","title":"Meri Dost Urdu Silsila Machli Barai Jamat Prep","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":134,"pub":"Gaba Educational Books","title":"Phonetic Readers Part 1","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":135,"pub":"Gaba Educational Books","title":"Phonetic Readers Part 2","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":136,"pub":"Gleam Publications","title":"Fun Art (A)","subj":"Art and Drawing","grade":"Pre-I","la":"Creative Arts"},{"sr":137,"pub":"Gleam Publications","title":"Fun Art (B)","subj":"Art and Drawing","grade":"Pre-I","la":"Creative Arts"},{"sr":138,"pub":"Gleam Publications","title":"Fun Art (C)","subj":"Art and Drawing","grade":"Pre-I","la":"Creative Arts"},{"sr":139,"pub":"Gohar Publishers","title":"Gohar Social Studies (New Edition)","subj":"Social Studies","grade":"Pre-I","la":"World Around Us"},{"sr":140,"pub":"Ideal Furnishers","title":"Smart English Language Workbook Term 2 Beginners Step-1","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":141,"pub":"Ideal Furnishers","title":"Popcorn - Beginners Step-1 (Reader)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":142,"pub":"Ideal Furnishers","title":"Smart English Language Workbook Term 2 Beginners Step-3","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":143,"pub":"Ideal Furnishers","title":"Hum Aur Hamari Duniya - Ibtedai Hissa Siwam","subj":"General knowledge","grade":"Pre-I","la":"World Around Us"},{"sr":144,"pub":"Ideal Furnishers","title":"Mathematics Term 1- Nursery","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":145,"pub":"Ideal Furnishers","title":"Mathematics Term II- Nursery","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":146,"pub":"Ideal Furnishers","title":"Urdu Qaida-KG","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":147,"pub":"Ideal Furnishers","title":"Urdu Qaida-Nursery","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":148,"pub":"Ideal Furnishers","title":"Nursery Urdu- Miyad Awal","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":149,"pub":"Ideal Furnishers","title":"Nursery Urdu- Miyad Doam","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":150,"pub":"Ideal Furnishers","title":"KG-Urdu Miyad Awal","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":151,"pub":"Ideal Furnishers","title":"KG-Urdu Miyad Doam","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":152,"pub":"Ideal Furnishers","title":"Language and Literacy Term 1 -Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":153,"pub":"Ideal Furnishers","title":"Language and Literacy Term II -Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":154,"pub":"Ideal Furnishers","title":"Language and Literacy Term 1 -Kindergarten","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":155,"pub":"Ideal Furnishers","title":"Language and Literacy Term II - Kindergarten","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":156,"pub":"Ideal Furnishers","title":"The World Around Us-Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":157,"pub":"Ideal Furnishers","title":"English Language Workbook Term -1 PlayGroup","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":158,"pub":"Ideal Furnishers","title":"English Language Workbook Term -2 PlayGroup","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":159,"pub":"Ideal Furnishers","title":"English Language Workbook Term -1 Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":160,"pub":"Ideal Furnishers","title":"English Language Workbook Term -2 Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":161,"pub":"Ideal Furnishers","title":"Mathematics Term-1 Kindergarten","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":162,"pub":"Ideal Furnishers","title":"Mathematics Term-2 Kindergarten","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":163,"pub":"Ideal Furnishers","title":"Smart Urdu Qaida (Ibtedai Awwal)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":164,"pub":"Ideal Furnishers","title":"Smart Urdu Qaida (Ibtedai Duwam)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":165,"pub":"Ideal Furnishers","title":"Smart Urdu Qaida (Ibtedai Suwam)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":166,"pub":"Ideal Furnishers","title":"Urdu ki Dunya - Ibtedai Awwal (Miyaad Awwal)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":167,"pub":"Ideal Furnishers","title":"Urdu ki Dunya - Ibtedai Awwal (Miyaad Duwam)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":168,"pub":"Ideal Furnishers","title":"Urdu ki Dunya - Ibtedai Duwam (Miyaad Duwam)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":169,"pub":"Ideal Furnishers","title":"Smart English Voyage - Foundation 1-A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":170,"pub":"Ideal Furnishers","title":"Smart English Voyage - Foundation 1-B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":171,"pub":"Ideal Furnishers","title":"Smart English Voyage - Foundation 2-A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":172,"pub":"Ideal Furnishers","title":"Smart English Voyage - Foundation 2-B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":173,"pub":"Ideal Furnishers","title":"Smart English Voyage - Foundation 3-A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":174,"pub":"Ideal Furnishers","title":"Smart English Voyage - Foundation 3-B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":175,"pub":"Ideal Furnishers","title":"Smart English Readers Level 1-A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":176,"pub":"Ideal Furnishers","title":"Smart English Readers Level 1-B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":177,"pub":"Ideal Furnishers","title":"Smart English Readers Level 2-A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":178,"pub":"Ideal Furnishers","title":"Smart English Readers Level 2-B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":179,"pub":"Ideal Furnishers","title":"Smart English Readers Level 3-A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":180,"pub":"Ideal Furnishers","title":"Smart English Readers Level 3-B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":181,"pub":"Ideal Furnishers","title":"Smart Explorers - Level 1","subj":"Social Studies","grade":"Pre-I","la":"World Around Us"},{"sr":182,"pub":"Ideal Furnishers","title":"Smart Explorers - Level 2","subj":"Social Studies","grade":"Pre-I","la":"World Around Us"},{"sr":183,"pub":"Ideal Furnishers","title":"Smart Explorers - Level 3","subj":"Social Studies","grade":"Pre-I","la":"World Around Us"},{"sr":184,"pub":"Jolly Learning UK","title":"Fun phonics pack 1 ( 3 stories)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":185,"pub":"Light Stones Publishers","title":"Urdu ki Bahar nursery","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":186,"pub":"MetaMinds press","title":"English Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":187,"pub":"Orenda (Private) Limited","title":"Tiny Tails and Letter Trails - English Essentials.","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":188,"pub":"Orenda (Private) Limited","title":"Nanay Qadam Teesari Manzil","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":189,"pub":"Oxford University Press","title":"ORT - Stage 2 (Pack of 6)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":190,"pub":"Oxford University Press","title":"ORT - Stage 3 (Pack of 6)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":191,"pub":"Oxford University Press","title":"My Learning Train: World Around Me (Pre-Nursery)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":192,"pub":"Oxford University Press","title":"My Learning Train: World Around Me (Nursery)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":193,"pub":"Oxford University Press","title":"My Learning Train: World Around Me (Kindergarten)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":194,"pub":"Oxford University Press","title":"Nelson Handwriting Workbook Starter B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":195,"pub":"Oxford University Press","title":"Nelson Handwriting Workbook Starter A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":196,"pub":"Oxford University Press","title":"Nelson Handwriting Workbook Starter C","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":197,"pub":"Oxford University Press","title":"ORT Floppy phonics Level 1+ Sounds and letters","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":198,"pub":"Oxford University Press","title":"ORT Floppy phonics Level 1A Fiction","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":199,"pub":"Oxford University Press","title":"ORT Level 3A Floppys Phonics Fiction","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":200,"pub":"Oxford University Press","title":"NOME Workbook Primer B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":201,"pub":"Oxford University Press","title":"NOME Pre-primer","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":202,"pub":"Oxford University Press","title":"NOME Primer A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":203,"pub":"Oxford University Press","title":"NOME Primer B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":204,"pub":"Oxford University Press","title":"ORT Floppy phonics Level 2 Sounds and letters","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":205,"pub":"Oxford University Press","title":"Oxford Progressive English - Introductory","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":206,"pub":"Oxford University Press","title":"ORT FLOPPY PHONICS LVL 3 SOUNDS AND LETTERS","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":207,"pub":"Oxford University Press","title":"We Learn English Pre-nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":208,"pub":"Oxford University Press","title":"We Learn English Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":209,"pub":"Oxford University Press","title":"We Learn English KG","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":210,"pub":"Oxford University Press","title":"ORT FLOPPY PHONICS LEVEL 2A FICTION","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":211,"pub":"Oxford University Press","title":"New Syllabus Pre-Primary Mathematics A2","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":212,"pub":"Oxford University Press","title":"New Syllabus Pre-Primary Mathematics A3","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":213,"pub":"Oxford University Press","title":"New Syllabus Pre-Primary Mathematics A4","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":214,"pub":"Oxford University Press","title":"New Syllabus Pre-Primary Mathematics A1","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":215,"pub":"Oxford University Press","title":"New Syllabus Pre-Primary Mathematics B1","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":216,"pub":"Oxford University Press","title":"New Syllabus Pre-Primary Mathematics B3","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":217,"pub":"Oxford University Press","title":"New Syllabus Pre-Primary Mathematics B4","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":218,"pub":"Oxford University Press","title":"New Syllabus Pre-Primary Mathematics C1","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":219,"pub":"Oxford University Press","title":"New Syllabus Pre-Primary Mathematics C2","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":220,"pub":"Oxford University Press","title":"New Syllabus Pre-Primary Mathematics C3","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":221,"pub":"Oxford University Press","title":"New Syllabus Pre-Primary Mathematics C4","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":222,"pub":"Oxford University Press","title":"First Steps to Early Years Urdu Level 1","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":223,"pub":"Oxford University Press","title":"First Steps to Early Years Urdu Level 2","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":224,"pub":"Oxford University Press","title":"First Steps to Early Years Urdu Level 3","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":225,"pub":"Oxford University Press","title":"MLT World of Letters Reader [Pre-nursery]","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":226,"pub":"Oxford University Press","title":"MLT World of Letters Reader [Nursery]","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":227,"pub":"Oxford University Press","title":"MLT World of Letters Reader [KG]","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":228,"pub":"Oxford University Press","title":"Stage 4 House for Sale","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":229,"pub":"Oxford University Press","title":"Stage 4 The New House","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":230,"pub":"Oxford University Press","title":"Stage 4 Come in!","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":231,"pub":"Oxford University Press","title":"Stage 4 The Secret Room","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":232,"pub":"Oxford University Press","title":"Stage 4 The Play","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":233,"pub":"Oxford University Press","title":"Stage 5 Gran","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":234,"pub":"Oxford University Press","title":"Stage 5 Village in the Snow","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":235,"pub":"Oxford University Press","title":"Urdu KhusKhati Silsila Book Intro","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":236,"pub":"Oxford University Press","title":"stage 5 the magic key","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":237,"pub":"Oxford University Press","title":"Urdu KhusKhati Silsila Book 1 Pre Nursery","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":238,"pub":"Oxford University Press","title":"Urdu KhusKhati Silsila Book 2 KG","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":239,"pub":"Oxford University Press","title":"Stage 5 Castle Adventure","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":240,"pub":"Oxford University Press","title":"Stage 6 The Treasure Chest","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":241,"pub":"Oxford University Press","title":"Stage 6 In the Garden","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":242,"pub":"Oxford University Press","title":"Stage 6 Kipper and the Giant","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":243,"pub":"Oxford University Press","title":"Stage 6 Land of the Dinosaurs","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":244,"pub":"Oxford University Press","title":"Stage 6 Robin Hood","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":245,"pub":"Oxford University Press","title":"Stage 6 The Outing","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":246,"pub":"Oxford University Press","title":"Stage 7 Lost in the Jungle","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":247,"pub":"Oxford University Press","title":"Stage 7 The Lost Key","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":248,"pub":"Oxford University Press","title":"Stage 7 Red Planet","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":249,"pub":"Oxford University Press","title":"Stage 7 Submarine Adventure","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":250,"pub":"Oxford University Press","title":"Stage 7 The Broken Roof","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":251,"pub":"Oxford University Press","title":"Stage 7 The Willow Pattern Plot","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":252,"pub":"Oxford University Press","title":"English for Early Learners Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":253,"pub":"Oxford University Press","title":"English for Early Learners pre-nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":254,"pub":"Oxford University Press","title":"Parheay Seekheay Book 1","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":255,"pub":"Oxford University Press","title":"Parheeay Seekheay Book 2","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":256,"pub":"Oxford University Press","title":"Agar Nagar Ki Nazmain","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":257,"pub":"Oxford University Press","title":"Alif Bay Pay Geet aur Awazain","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":258,"pub":"Oxford University Press","title":"Alif sey Yay tak Nannhay Geet aur Nazmain","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":259,"pub":"Oxford University Press","title":"Huroof Ki Kahania","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":260,"pub":"Oxford University Press","title":"ORT Floppy phonics sounds and letters Level 1","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":261,"pub":"Oxford University Press","title":"MLT World of Numbers Pre-Nursery","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":262,"pub":"Oxford University Press","title":"MLT World of Numbers Nursery","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":263,"pub":"Oxford University Press","title":"MLT World of Numbers Kindergarten","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":264,"pub":"Oxford University Press","title":"MLT World of Numbers pre-nursery worksheets","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":265,"pub":"Oxford University Press","title":"MLT World of Numbers Nursery worksheets","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":266,"pub":"Oxford University Press","title":"MLT World of Numbers Kindergarten worksheets","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":267,"pub":"Oxford University Press","title":"English for Early Learners Kindergarten","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":268,"pub":"Oxford University Press","title":"First Steps to Early Years Maths Level 1","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":269,"pub":"Oxford University Press","title":"First Steps to Early Years Maths Level 2","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":270,"pub":"Oxford University Press","title":"First Steps to Early Years Maths Level 3","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":271,"pub":"Oxford University Press","title":"Stage 4 The Storm","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":272,"pub":"Oxford University Press","title":"Stage 5 The Dragon Tree","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":273,"pub":"Oxford University Press","title":"Stage 5 Pirate Adventure","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":274,"pub":"Oxford University Press","title":"First Steps to English Level 1","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":275,"pub":"Oxford University Press","title":"First Steps to Early Years English Level 2","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":276,"pub":"Oxford University Press","title":"First Steps to Early Years English Level 3","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":277,"pub":"Oxford University Press","title":"Number Songs","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":278,"pub":"Oxford University Press","title":"Songs and Sounds of ABC","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":279,"pub":"Oxford University Press","title":"Maths For Early Learners Year 1","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":280,"pub":"Oxford University Press","title":"Maths For Early Learners Year 2","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":281,"pub":"Oxford University Press","title":"Maths For Early Learners Year 3","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":282,"pub":"Oxford University Press","title":"ORT Stage 1 + First Sentences (Pack of 6)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":283,"pub":"Oxford University Press","title":"ORT Stage 1 Wordless Stories B (Pack of 6)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":284,"pub":"Oxford University Press","title":"ORT - Stage 1 First Words (Pack of 6)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":285,"pub":"Oxford University Press","title":"a to m Alphabet Fun - Pre-Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":286,"pub":"Oxford University Press","title":"n to z Alphabet Fun - Pre-Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":287,"pub":"Oxford University Press","title":"A to M Alphabet Fun - Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":288,"pub":"Oxford University Press","title":"N to Z Alphabet Fun - Nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":289,"pub":"Oxford University Press","title":"Aa to Mm - Alphabet Fun - Kindergarten","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":290,"pub":"Oxford University Press","title":"Nn to Zz Alphabet Fun - Kindergarten","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":291,"pub":"Oxford University Press","title":"Oxford Reading Circle Introductory","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":292,"pub":"Oxford University Press","title":"MLT World of Letters Book [Pre-Nursery]","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":293,"pub":"Oxford University Press","title":"My Learning Train World of Letters Book [Nursery]","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":294,"pub":"Oxford University Press","title":"MLT World of Letters Book [KG]","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":295,"pub":"Oxford University Press","title":"Urdu ka Guldasta Chambeli","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":296,"pub":"Oxford University Press","title":"UKG Reader Tohfa","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":297,"pub":"Oxford University Press","title":"UKG Reader Ghubbaray","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":298,"pub":"Oxford University Press","title":"UKG Reader Taaray","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":299,"pub":"Oxford University Press","title":"UKG Kaliyan","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":300,"pub":"Oxford University Press","title":"UKG Gulab","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":301,"pub":"Oxford University Press","title":"FSEY World Around Us Level 1","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":302,"pub":"Oxford University Press","title":"FSEY World Around Us Level 2","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":303,"pub":"Oxford University Press","title":"FSEY World Around Us Level 3","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":304,"pub":"Oxford University Press","title":"Urdu Say Dosti -KG","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":305,"pub":"Oxford University Press","title":"Show and Tell Student book 1","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":306,"pub":"Oxford University Press","title":"Show and Tell book 2","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":307,"pub":"Oxford University Press","title":"Show and Tell student book 3","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":308,"pub":"Oxford University Press","title":"Show and Tell activity book 1","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":309,"pub":"Oxford University Press","title":"Show and Tell Activity book 2","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":310,"pub":"Oxford University Press","title":"Show and Tell Activity Activity book 3","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":311,"pub":"Oxford University Press","title":"Show and Tell Literacy book 1","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":312,"pub":"Oxford University Press","title":"Show and Tell Literacy book 2","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":313,"pub":"Oxford University Press","title":"Show and Tell Literacy book 3","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":314,"pub":"Oxford University Press","title":"Show and Tell Numeracy book 1","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":315,"pub":"Oxford University Press","title":"Show and Tell Numeracy book 2","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":316,"pub":"Oxford University Press","title":"Show and Tell Numeracy book 3","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":317,"pub":"Oxford University Press","title":"Urdu Say Dosti Pre- Nursery","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":318,"pub":"Oxford University Press","title":"Urdu Say Dosti Nursery","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":319,"pub":"Oxford University Press","title":"My Learning Train world around me worksheets nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":320,"pub":"Oxford University Press","title":"My Learning Train world around me worksheets KG","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":321,"pub":"Oxford University Press","title":"My Learning Train world around me worksheets pre-nursery","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":322,"pub":"Oxford University Press Pakistan (SMC-Private) Limited","title":"New Broadway Primer A","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":323,"pub":"Oxford University Press Pakistan (SMC-Private) Limited","title":"New Broadway Primer B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":324,"pub":"Oxford University Press Pakistan (SMC-Private) Limited","title":"New Oxford Social Studies for Pakistan (Fourth Edition) Primer B","subj":"Social Studies","grade":"Pre-I","la":"World Around Us"},{"sr":325,"pub":"Oxford University Press Pakistan (SMC-Private) Limited","title":"New Oxford Social Studies for Pakistan (Fourth Edition) Primer A","subj":"Social Studies","grade":"Pre-I","la":"World Around Us"},{"sr":326,"pub":"Oxford University Press Pakistan (SMC-Private) Limited","title":"Countdown to Success Enhanced Blended Edition (Pre-Nursery)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":327,"pub":"Oxford University Press Pakistan (SMC-Private) Limited","title":"Countdown to Success Enhanced Blended Edition (Nursery)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":328,"pub":"Oxford University Press Pakistan (SMC-Private) Limited","title":"Countdown to Success Enhanced Blended Edition (Kindergarten)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":329,"pub":"Oxford University Press Pakistan (SMC-Private) Limited","title":"Urdu Kay Rang (Book for Kindergarten)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":330,"pub":"Oxford University Press Pakistan (SMC-Private) Limited","title":"Urdu Kay Rang (Book for Pre-Nursery)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":331,"pub":"Oxford University Press Pakistan (SMC-Private) Limited","title":"Urdu Kay Rang (Book for Nursery)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":332,"pub":"Oxford University Press Pakistan (SMC-Private) Limited","title":"Math Understood Introductory Book 1","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":333,"pub":"Oxford University Press Pakistan (SMC-Private) Limited","title":"Math Understood Introductory Book 2","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":334,"pub":"Paramount Books","title":"Daant Ka Dard","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":335,"pub":"Paramount Books","title":"Meri Dost","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":336,"pub":"Paramount Books","title":"Meri Rangeen Dunya","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":337,"pub":"Paramount Books","title":"Urdu Nagar Ki Sair KG Term-1","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":338,"pub":"Paramount Books","title":"Urdu Nagar Ki Sair KG Term-2","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":339,"pub":"Paramount Books","title":"Paramount Urdu Adabi Silsila Gutar Gu (Volume 1)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":340,"pub":"Paramount Books","title":"Paramount Urdu Adabi Silsila Gutar Gu (Volume 2)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":341,"pub":"Premier Trading Services.","title":"KG Worksheet Term 1 & 2 Combined","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":342,"pub":"Premier Trading Services.","title":"Nursery Worksheet Term 1 & 2 Combined","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":343,"pub":"Premier Trading Services.","title":"Pre Nursery Worksheet Term 1 & 2 Combined","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":344,"pub":"Premier Trading Services.","title":"Urdu Ki Amli Kitab Class KG Term 1","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":345,"pub":"Premier Trading Services.","title":"Urdu Ki Amli Kitab Class KG Term 2","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":346,"pub":"Premier Trading Services.","title":"Urdu Ki Amli Kitab Class Nursery Term 1","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":347,"pub":"Premier Trading Services.","title":"Urdu Ki Amli Kitab Class Nursery Term 2","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":348,"pub":"Qadri Publications","title":"Pre-Nursery English (Read and Write)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":349,"pub":"Qadri Publications","title":"Pre-Nursery Math (Count and Learn)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":350,"pub":"Qadri Publications","title":"Pre-Nursery Urdu (Parhain aur Likhain)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":351,"pub":"Qadri Publications","title":"Let's Read (Step 1)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":352,"pub":"Qadri Publications","title":"Aao Parhain (Pehla Qadam)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":353,"pub":"Qadri Publications","title":"Nursery English (Read and Write)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":354,"pub":"Qadri Publications","title":"Nursery Urdu (Parhain aur Likhain)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":355,"pub":"Qadri Publications","title":"Let's Read (Step 2)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":356,"pub":"Qadri Publications","title":"Aao Parhain (Doosra Qadam)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":357,"pub":"Qadri Publications","title":"Art and Craft (Step 1)","subj":"Art and Drawing","grade":"Pre-I","la":"Creative Arts"},{"sr":358,"pub":"Qadri Publications","title":"Kindergarten English (Read and Write)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":359,"pub":"Qadri Publications","title":"Kindergarten Math (Count and Learn)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":360,"pub":"Qadri Publications","title":"K.G Urdu (Parhain aur Likhain)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":361,"pub":"Qadri Publications","title":"Art and Craft (Step 2)","subj":"Art and Drawing","grade":"Pre-I","la":"Creative Arts"},{"sr":362,"pub":"Qadri Publications","title":"Mathematics Workbook (Step-1)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":363,"pub":"Qadri Publications","title":"Let's Read (Step 3)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":364,"pub":"Qadri Publications","title":"Aao Parhain (Teesra Qadam)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":365,"pub":"Qadri Publications","title":"Pre-Primary English (Step 1)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":366,"pub":"Qadri Publications","title":"Pre-Primary Mathematics (Step 1)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":367,"pub":"Qadri Publications","title":"Pre-Primary Urdu (Step 1)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":368,"pub":"Qadri Publications","title":"Pre-Primary English (Step 2)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":369,"pub":"Qadri Publications","title":"Pre-Primary English Workbook (Step 2)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":370,"pub":"Qadri Publications","title":"Pre-Primary Mathematics (Step 2)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":371,"pub":"Qadri Publications","title":"Pre-Primary Urdu Workbook (Step-2)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":372,"pub":"Qadri Publications","title":"Pre-Primary Urdu (Step 2)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":373,"pub":"Qadri Publications","title":"Pre-Primary Mathematics Workbook (Step-2)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":374,"pub":"Qadri Publications","title":"Pre-Primary Urdu (Step 3)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":375,"pub":"Qadri Publications","title":"Pre-Primary English Workbook (Step 3)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":376,"pub":"Qadri Publications","title":"Pre-Primary Urdu Workbook (Step 3)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":377,"pub":"Qadri Publications","title":"Nursery Math (Count and Learn)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":378,"pub":"Qadri Publications","title":"Pre-Primary Mathematics (Step-3)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":379,"pub":"Qadri Publications","title":"Pre-Primary Mathematics Workbook (Step-3)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":380,"pub":"Qadri Publications","title":"Pre-Primary Urdu Workbook (Step-1)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":381,"pub":"Qadri Publications","title":"Pre-Nursery Raah-e-Islam","subj":"Islamic Studies","grade":"Pre-I","la":"Personal, Social and Emotional Development"},{"sr":382,"pub":"Qadri Publications","title":"KG Raah-e-Islam","subj":"Islamic Studies","grade":"Pre-I","la":"Personal, Social and Emotional Development"},{"sr":383,"pub":"Qadri Publications","title":"My World (Step-2)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":384,"pub":"Read More Publication","title":"Early Learning Haroof Tehji Laval A","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":385,"pub":"Safoora Publications","title":"Safoora Basic Mathematics B","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":386,"pub":"Safoora Publications","title":"Safoora Basic Mathematics C","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":387,"pub":"Safoora Publications","title":"Safoora Communicative English B","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":388,"pub":"Safoora Publications","title":"Safoora Communicative English C","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":389,"pub":"Safoora Publications","title":"Safoora Zeena Urdu B","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":390,"pub":"Safoora Publications","title":"Safoora Zeena Urdu C","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":391,"pub":"Safoora Publications","title":"English Workbook","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":392,"pub":"Safoora Publications","title":"English Reader","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":393,"pub":"Safoora Publications","title":"Maths Workbook","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":394,"pub":"Safoora Publications","title":"Creative Art & Craft","subj":"Art and Drawing","grade":"Pre-I","la":"Creative Arts"},{"sr":395,"pub":"Safoora Publications","title":"Urdu Workbook","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":396,"pub":"Safoora Publications","title":"Social Studies Littleverse Series GK","subj":"Social Studies","grade":"Pre-I","la":"World Around Us"},{"sr":397,"pub":"Safoora Publications","title":"Maths Reader","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":398,"pub":"Safoora Publications","title":"Urdu Workbook","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":399,"pub":"Safoora Publications","title":"Maths Reader","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":400,"pub":"Safoora Publications","title":"Urdu Reader","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":401,"pub":"Safoora Publications","title":"Urdu Reader","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":402,"pub":"Safoora Publications","title":"English Workbook","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":403,"pub":"Safoora Publications","title":"Creative Art & Craft","subj":"Art and Drawing","grade":"Pre-I","la":"Creative Arts"},{"sr":404,"pub":"Safoora Publications","title":"Maths Workbook","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":405,"pub":"Safoora Publications","title":"Social Studies","subj":"Social Studies","grade":"Pre-I","la":"World Around Us"},{"sr":406,"pub":"Safoora Publications","title":"English Reader","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":407,"pub":"Snowman Publishers.","title":"Knowledge Wheel (3+)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":408,"pub":"Snowman Publishers.","title":"Knowledge Wheel (5+)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":409,"pub":"Stem International Publishing Co","title":"Urdu Qaida 3+","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":410,"pub":"Stem International Publishing Co","title":"5+ IBP","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":411,"pub":"Summit Books","title":"Flamingo Series English First Step","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":412,"pub":"Summit Books","title":"Flamingo Series English Second Step","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":413,"pub":"Summit Books","title":"Flamingo Series English Third Step","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":414,"pub":"Sunrise Publications","title":"Aahang Urdu Nursery Grade Pre 1","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":415,"pub":"Sunrise Publications","title":"Aahang Urdu KG Grade Pre 1","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":416,"pub":"Sunrise Publications","title":"Sunrise Mathematics for Early Learners Pre-Primary 1A","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":417,"pub":"Sunrise Publications","title":"Sunrise Mathematics for Early Learners Pre-Primary 1B","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":418,"pub":"Sunrise Publications","title":"Sunrise Mathematics for Early Learners Pre-Primary 2A","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":419,"pub":"Sunrise Publications","title":"Sunrise Mathematics for Early Learners Pre-Primary 2B","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":420,"pub":"Sunrise Publications","title":"Sunrise Urdu Worksheets Ibtaydaee 1","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":421,"pub":"Sunrise Publications","title":"Sunrise Urdu Worksheets Ibtaydaee 2","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":422,"pub":"Sunrise Publications","title":"Sunrise Urdu Worksheets Ibtaydaee 3","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":423,"pub":"Super Star Publishers","title":"General Knowledge","subj":"General knowledge","grade":"Pre-I","la":"World Around Us"},{"sr":424,"pub":"Super Star Publishers","title":"English","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":425,"pub":"Super Star Publishers","title":"Urdu","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":426,"pub":"Super Star Publishers","title":"Urdu","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":427,"pub":"Super Star Publishers","title":"Urdu","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":428,"pub":"Super Star Publishers","title":"Maths","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":429,"pub":"The Education Consultancy","title":"Urdu Qaida Part- 1","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":430,"pub":"The Education Consultancy","title":"English Reader","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":431,"pub":"The Education Consultancy","title":"Maths Reader","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":432,"pub":"The Education Consultancy","title":"Urdu Qaida Part- 2","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":433,"pub":"The Education Consultancy","title":"English Reader- Level 2","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":434,"pub":"The Education Consultancy","title":"Maths Reader- Level 2","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":435,"pub":"The Education Consultancy","title":"English Reader- Level 3","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":436,"pub":"The Education Consultancy","title":"Maths Reader- Level 3","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":437,"pub":"Uzair Publishers.","title":"New Idea 123 (3+Age)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":438,"pub":"Uzair Publishers.","title":"New Idea 123 (4+Age)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":439,"pub":"Uzair Publishers.","title":"New Idea MATHS (5+Age)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":440,"pub":"Uzair Publishers.","title":"New Idea Alif Bay Pay (3+Age)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":441,"pub":"Uzair Publishers.","title":"New Idea Alif Bay Pay (4+Age)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":442,"pub":"Uzair Publishers.","title":"New Idea Urdu ka Qaida (5+Age)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":443,"pub":"Wings Publishing House","title":"English Play Group(Ocean series)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":444,"pub":"Wings Publishing House","title":"English Nursery(Ocean series)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":445,"pub":"Wings Publishing House","title":"English Kindergarten(Ocean series)","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":446,"pub":"Wings Publishing House","title":"Urdu Playgroup(Ocean series)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":447,"pub":"Wings Publishing House","title":"Urdu Nursery(Ocean series)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":448,"pub":"Wings Publishing House","title":"Urdu kindergarten(Ocean series)","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":449,"pub":"Wings Publishing House","title":"Maths Nursery(Ocean series)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":450,"pub":"Wings Publishing House","title":"Maths Playgroup(Ocean series)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":451,"pub":"Wings Publishing House","title":"Maths Kindergarten(Ocean series)","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":452,"pub":"Wizz Publishers","title":"Wizz Early Learners English","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":453,"pub":"Wizz Publishers","title":"Wizz Early Learners English","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":454,"pub":"Wizz Publishers","title":"Wizz Early learners English Prep","subj":"English","grade":"Pre-I","la":"Language and Literacy"},{"sr":455,"pub":"Wizz Publishers","title":"Wizz Early Learners Mathematics","subj":"Math","grade":"Pre-I","la":"Basic Mathematics"},{"sr":456,"pub":"Wizz Publishers","title":"Wizz Early Learners Urdu Playgroup","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"},{"sr":457,"pub":"Wizz Publishers","title":"Wizz Early Learners Urdu Nursery","subj":"Urdu","grade":"Pre-I","la":"Language and Literacy"}]</script>
+<script id="schools-data" type="application/json">[{"emis":34210752,"name":"GGES UGGO WAL","markaz":"DAULAT NAGER-I-FEMALE"},{"emis":34210790,"name":"GGES DURANI MODEL","markaz":"GUJRAT I - FEMALE"},{"emis":34210801,"name":"GGPS KOTLI KUNDU","markaz":"GUJRAT-VI-FEMALE"},{"emis":34210848,"name":"GMPS RATTI","markaz":"GUJRAT-VI-FEMALE"},{"emis":34210163,"name":"GGES THAKHER KHOKHRAN","markaz":"GUJRAT-VII-FEMALE"},{"emis":34210561,"name":"GGCMES KASSOKI","markaz":"J.P.JATTAN I - FEMALE"},{"emis":34210506,"name":"GGES CHRISTIAN JALAL PUR JATTAN","markaz":"J.P.JATTAN II - FEMALE"},{"emis":34210570,"name":"GGES RANEWAL SAYYADAN","markaz":"J.P.JATTAN II - FEMALE"},{"emis":34210571,"name":"GGPS KULA CHOUR NO. 2","markaz":"J.P.JATTAN II - FEMALE"},{"emis":34210567,"name":"GGPS LADHA SADHA","markaz":"J.P.JATTAN-IV-FEMALE"},{"emis":34210540,"name":"GGPS CHANDAR","markaz":"J.P.JATTAN-IV-FEMALE"},{"emis":34210151,"name":"GGES BHUNGRAN WALA","markaz":"KARIANWALA III - FEMALE"},{"emis":34210164,"name":"GGES KHANWALI","markaz":"KUNJAH I - FEMALE"},{"emis":34210723,"name":"GGCMS GOLAKI","markaz":"KUNJAH II - FEMALE"}]</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- theme toggle (in-memory only, no storage) ---------------- */
+  var themeBtn = document.getElementById('theme-toggle');
+  if(themeBtn){
+    themeBtn.addEventListener('click', function(){
+      var light = document.documentElement.classList.toggle('light');
+      themeBtn.setAttribute('aria-pressed', light ? 'true' : 'false');
+    });
+  }
+
+  /* =========================================================
+     CONFIG — paste your deployed Google Apps Script Web App
+     URL below (see setup instructions provided separately).
+     Leave blank to fall back to a CSV download on submit.
+  ========================================================= */
+  var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwxt2890URXpOlo0XX-xOqC4numEzO9_0NkopB5ktdJ0zO3SzqEzkW1_cV6FIdQvgR/exec";
+
+  var BOOKS = JSON.parse(document.getElementById('books-data').textContent);
+  var SCHOOLS = JSON.parse(document.getElementById('schools-data').textContent);
+
+  var LA_ORDER = ["Language and Literacy","Basic Mathematics","World Around Us","Creative Arts","Personal, Social and Emotional Development"];
+  var MIN_TOTAL_BOOKS = 50;
+
+  // state: sr -> "Yes" | "No"
+  var state = {};
+  BOOKS.forEach(function(b){ state[b.sr] = "No"; });
+
+  var selEmis = document.getElementById('sel-emis');
+  var selName = document.getElementById('sel-name');
+  var selMarkaz = document.getElementById('sel-markaz');
+  var schoolConfirm = document.getElementById('school-confirm');
+  var statusMsg = document.getElementById('status-msg');
+  var configWarning = document.getElementById('config-warning');
+
+  if(!GOOGLE_SCRIPT_URL){ configWarning.classList.add('show'); }
+
+  /* ---------------- cascading school dropdowns ---------------- */
+  function fillSelect(sel, values, placeholder){
+    sel.innerHTML = '<option value="">' + placeholder + '</option>';
+    values.forEach(function(v){
+      var opt = document.createElement('option');
+      opt.value = v; opt.textContent = v;
+      sel.appendChild(opt);
+    });
+  }
+
+  function uniq(arr){ return Array.from(new Set(arr)); }
+
+  function initDropdowns(){
+    fillSelect(selEmis, SCHOOLS.map(function(s){return String(s.emis);}), '— select —');
+    fillSelect(selName, SCHOOLS.map(function(s){return s.name;}), '— select —');
+    fillSelect(selMarkaz, uniq(SCHOOLS.map(function(s){return s.markaz;})), '— select —');
+  }
+
+  function syncFrom(source){
+    var emis = selEmis.value, name = selName.value, markaz = selMarkaz.value;
+    var match = null;
+
+    if(source === 'emis' && emis){
+      match = SCHOOLS.find(function(s){ return String(s.emis) === emis; });
+    } else if(source === 'name' && name){
+      match = SCHOOLS.find(function(s){ return s.name === name; });
+    } else if(source === 'markaz' && markaz){
+      // markaz can map to multiple schools — narrow the other two dropdowns' options
+      var options = SCHOOLS.filter(function(s){ return s.markaz === markaz; });
+      fillSelect(selEmis, options.map(function(s){return String(s.emis);}), '— select —');
+      fillSelect(selName, options.map(function(s){return s.name;}), '— select —');
+      selEmis.value = ""; selName.value = "";
+      updateSchoolConfirm();
+      return;
+    }
+
+    if(match){
+      selEmis.value = String(match.emis);
+      selName.value = match.name;
+      selMarkaz.value = match.markaz;
+    }
+    updateSchoolConfirm();
+  }
+
+  function updateSchoolConfirm(){
+    if(selEmis.value && selName.value){
+      schoolConfirm.textContent = selName.value + " · EMIS " + selEmis.value + " · " + (selMarkaz.value || "");
+    } else {
+      schoolConfirm.textContent = "No school selected";
+    }
+  }
+
+  selEmis.addEventListener('change', function(){ syncFrom('emis'); });
+  selName.addEventListener('change', function(){ syncFrom('name'); });
+  selMarkaz.addEventListener('change', function(){
+    // reset full lists first so re-picking markaz always re-filters from full set
+    if(!selMarkaz.value){ initDropdowns(); updateSchoolConfirm(); return; }
+    syncFrom('markaz');
+  });
+
+  initDropdowns();
+
+  /* ---------------- summary panel ---------------- */
+  var summaryGrid = document.getElementById('summary-grid');
+  var laTotals = {};
+  LA_ORDER.forEach(function(la){ laTotals[la] = BOOKS.filter(function(b){return b.la===la;}).length; });
+
+  function laShortLabel(la){
+    return la; // full label, CSS handles wrapping via min-height
+  }
+
+  function renderSummary(){
+    var grandYes = 0, grandTotal = BOOKS.length;
+    var html = '';
+    LA_ORDER.forEach(function(la){
+      var total = laTotals[la];
+      var yes = BOOKS.filter(function(b){ return b.la===la && state[b.sr]==='Yes'; }).length;
+      grandYes += yes;
+      var pct = total ? Math.round(yes/total*100) : 0;
+      html += '<div class="stat" data-la="'+escapeAttr(la)+'">'+
+        '<div class="label">'+laShortLabel(la)+'</div>'+
+        '<div class="val">'+yes+'<small> / '+total+'</small></div>'+
+        '<div class="bar"><i style="width:'+pct+'%"></i></div>'+
+      '</div>';
+    });
+    html = '<div class="stat total"><div class="label">Total Books Selected</div><div class="val">'+grandYes+'<small> / '+grandTotal+'</small></div>'+
+      '<div class="bar"><i style="width:'+Math.round(grandYes/grandTotal*100)+'%"></i></div></div>' + html;
+    summaryGrid.innerHTML = html;
+  }
+
+  function escapeAttr(s){ return String(s).replace(/"/g,'&quot;'); }
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>]/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];
+    });
+  }
+
+  /* ---------------- book groups ---------------- */
+  var groupsEl = document.getElementById('groups');
+
+  function buildGroups(){
+    var html = '';
+    LA_ORDER.forEach(function(la, idx){
+      var items = BOOKS.filter(function(b){ return b.la === la; });
+      html += '<details class="group" data-la="'+escapeAttr(la)+'">';
+      html += '<summary>'+
+        '<span class="chev">▸</span>'+
+        '<span class="g-title">'+escapeHtml(la)+'</span>'+
+        '<span class="g-count">'+items.length+' titles</span>'+
+        '<span class="g-bar"><i data-bar="'+escapeAttr(la)+'" style="width:0%"></i></span>'+
+        '<span class="g-tally" data-tally="'+escapeAttr(la)+'">0 / '+items.length+' yes</span>'+
+      '</summary>';
+      html += '<div class="group-actions">'+
+        '<button class="btn small ghost" data-action="all-yes" data-la="'+escapeAttr(la)+'">Mark all Yes</button>'+
+        '<button class="btn small ghost" data-action="all-no" data-la="'+escapeAttr(la)+'">Mark all No</button>'+
+      '</div>';
+      html += '<table class="books"><tbody>';
+      items.forEach(function(b){
+        html += '<tr data-sr="'+b.sr+'" data-search="'+escapeAttr((b.title+' '+b.pub+' '+b.subj).toLowerCase())+'">'+
+          '<td class="sr">'+String(b.sr).padStart(3,'0')+'</td>'+
+          '<td class="title"><div class="t">'+escapeHtml(b.title)+'</div><div class="p">'+escapeHtml(b.pub)+'</div></td>'+
+          '<td class="subj">'+escapeHtml(b.subj)+'</td>'+
+          '<td class="toggle">'+
+            '<span class="yn" data-sr="'+b.sr+'">'+
+              '<button class="no on" data-val="No">NO</button>'+
+              '<button class="yes" data-val="Yes">YES</button>'+
+            '</span>'+
+          '</td>'+
+        '</tr>';
+      });
+      html += '</tbody></table></details>';
+    });
+    groupsEl.innerHTML = html;
+  }
+
+  function renderGroupTallies(){
+    LA_ORDER.forEach(function(la){
+      var total = laTotals[la];
+      var yes = BOOKS.filter(function(b){ return b.la===la && state[b.sr]==='Yes'; }).length;
+      var tallyEl = groupsEl.querySelector('[data-tally="'+cssEsc(la)+'"]');
+      var barEl = groupsEl.querySelector('[data-bar="'+cssEsc(la)+'"]');
+      if(tallyEl) tallyEl.textContent = yes + ' / ' + total + ' yes';
+      if(barEl) barEl.style.width = (total? Math.round(yes/total*100):0) + '%';
+    });
+  }
+  function cssEsc(s){
+    var bs = String.fromCharCode(92);
+    var out = '';
+    var str = String(s);
+    for(var i=0;i<str.length;i++){
+      var c = str[i];
+      out += (c === '"' || c === bs) ? (bs + c) : c;
+    }
+    return out;
+  }
+
+  function setToggle(sr, val){
+    state[sr] = val;
+    var wrap = groupsEl.querySelector('.yn[data-sr="'+sr+'"]');
+    if(wrap){
+      wrap.querySelector('.yes').classList.toggle('on', val==='Yes');
+      wrap.querySelector('.no').classList.toggle('on', val==='No');
+    }
+    renderSummary();
+    renderGroupTallies();
+  }
+
+  groupsEl.addEventListener('click', function(e){
+    var btn = e.target.closest('button');
+    if(!btn) return;
+
+    var ynWrap = e.target.closest('.yn');
+    if(ynWrap){
+      setToggle(ynWrap.getAttribute('data-sr'), btn.getAttribute('data-val'));
+      return;
+    }
+
+    var action = btn.getAttribute('data-action');
+    if(action){
+      var la = btn.getAttribute('data-la');
+      var val = action === 'all-yes' ? 'Yes' : 'No';
+      BOOKS.filter(function(b){ return b.la===la; }).forEach(function(b){ setToggle(b.sr, val); });
+    }
+  });
+
+  document.getElementById('expand-all').addEventListener('click', function(){
+    groupsEl.querySelectorAll('details.group').forEach(function(d){ d.open = true; });
+  });
+  document.getElementById('collapse-all').addEventListener('click', function(){
+    groupsEl.querySelectorAll('details.group').forEach(function(d){ d.open = false; });
+  });
+  document.getElementById('reset-all').addEventListener('click', function(){
+    if(!confirm('Reset every book to "No"?')) return;
+    BOOKS.forEach(function(b){ setToggle(b.sr, 'No'); });
+  });
+
+  /* ---------------- filter ---------------- */
+  var filterBox = document.getElementById('filter-box');
+  filterBox.addEventListener('input', function(){
+    var q = filterBox.value.trim().toLowerCase();
+    var rows = groupsEl.querySelectorAll('table.books tr');
+    rows.forEach(function(row){
+      var hay = row.getAttribute('data-search') || '';
+      row.classList.toggle('hidden', q && hay.indexOf(q) === -1);
+    });
+    if(q){
+      groupsEl.querySelectorAll('details.group').forEach(function(d){ d.open = true; });
+    }
+  });
+
+  /* ---------------- validation ---------------- */
+  function validate(){
+    var errors = [];
+    LA_ORDER.forEach(function(la){
+      var yes = BOOKS.filter(function(b){ return b.la===la && state[b.sr]==='Yes'; }).length;
+      if(yes < 1) errors.push('Select at least 1 book under "' + la + '".');
+    });
+    var totalYes = Object.keys(state).filter(function(k){ return state[k]==='Yes'; }).length;
+    if(totalYes < MIN_TOTAL_BOOKS){
+      errors.push('At least ' + MIN_TOTAL_BOOKS + ' books must be marked Yes in total (currently ' + totalYes + ').');
+    }
+    return errors;
+  }
+
+  /* ---------------- submit ---------------- */
+  var submitBtn = document.getElementById('submit-btn');
+
+  function buildPayload(){
+    var school = SCHOOLS.find(function(s){ return String(s.emis) === selEmis.value; });
+    var rows = BOOKS.map(function(b){
+      return { sr:b.sr, publisher:b.pub, title:b.title, subject:b.subj, grade:b.grade, learningArea:b.la, present: state[b.sr] };
+    });
+    var summary = LA_ORDER.map(function(la){
+      var total = laTotals[la];
+      var yes = BOOKS.filter(function(b){ return b.la===la && state[b.sr]==='Yes'; }).length;
+      return { learningArea: la, yes: yes, total: total };
+    });
+    var totalYes = summary.reduce(function(a,s){return a+s.yes;},0);
+    return {
+      timestamp: new Date().toISOString(),
+      emis: selEmis.value,
+      schoolName: selName.value,
+      markaz: selMarkaz.value,
+      totalYes: totalYes,
+      totalBooks: BOOKS.length,
+      summary: summary,
+      books: rows
+    };
+  }
+
+  function toCsvAndDownload(payload){
+    var lines = [];
+    lines.push(['Timestamp','EMIS','School Name','Markaz','Sr','Publisher','Title','Subject','Grade','ECCE Learning Area','Present'].join(','));
+    payload.books.forEach(function(r){
+      lines.push([payload.timestamp, payload.emis, csvSafe(payload.schoolName), csvSafe(payload.markaz),
+        r.sr, csvSafe(r.publisher), csvSafe(r.title), csvSafe(r.subject), r.grade, csvSafe(r.learningArea), r.present].join(','));
+    });
+    var blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'ECE_Corner_Books_' + (payload.emis||'school') + '_' + payload.timestamp.slice(0,10) + '.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  function csvSafe(v){
+    v = String(v==null?'':v);
+    if(/[",\n]/.test(v)) v = '"' + v.replace(/"/g,'""') + '"';
+    return v;
+  }
+
+  function generateYesPdf(payload){
+    if(typeof window.jspdf === 'undefined'){
+      setStatus('PDF library did not load (no internet?) — skipped PDF, data still submitted.', 'warn');
+      return;
+    }
+    var jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF({ unit:'pt', format:'a4' });
+    var yesBooks = payload.books.filter(function(b){ return b.present === 'Yes'; });
+
+    doc.setFontSize(13);
+    doc.text('ECE Corner Books — Submitted Books (Yes)', 40, 40);
+    doc.setFontSize(9);
+    doc.text('Punjab Education Sector Reform Programme · STG Program (PECTAA-Approved)', 40, 56);
+
+    doc.setFontSize(10);
+    var infoY = 78;
+    doc.text('School Name: ' + (payload.schoolName || '-'), 40, infoY);
+    doc.text('EMIS Code: ' + (payload.emis || '-'), 40, infoY + 15);
+    doc.text('Markaz: ' + (payload.markaz || '-'), 40, infoY + 30);
+    doc.text('Submitted: ' + payload.timestamp, 40, infoY + 45);
+    doc.text('Total books marked Yes: ' + yesBooks.length + ' / ' + payload.totalBooks, 40, infoY + 60);
+
+    var body = yesBooks.map(function(b){
+      return [b.sr, b.title, b.publisher, b.subject, b.learningArea];
+    });
+
+    doc.autoTable({
+      startY: infoY + 78,
+      head: [['Sr', 'Title', 'Publisher', 'Subject', 'ECCE Learning Area']],
+      body: body,
+      styles: { fontSize: 8, cellPadding: 4 },
+      headStyles: { fillColor: [31, 156, 116] },
+      columnStyles: { 0: { cellWidth: 30 } }
+    });
+
+    var fname = 'ECE_Corner_Books_Yes_' + (payload.emis || 'school') + '_' + payload.timestamp.slice(0,10) + '.pdf';
+    doc.save(fname);
+  }
+
+  submitBtn.addEventListener('click', function(){
+    if(!selEmis.value || !selName.value){
+      setStatus('Select a school before submitting.', 'err');
+      return;
+    }
+    var errors = validate();
+    if(errors.length){
+      setStatus(errors.join(' '), 'err');
+      return;
+    }
+    var payload = buildPayload();
+    submitBtn.disabled = true;
+    setStatus('Submitting…', 'warn');
+
+    if(!GOOGLE_SCRIPT_URL){
+      toCsvAndDownload(payload);
+      generateYesPdf(payload);
+      setStatus('Google Sheet not connected — downloaded CSV and PDF instead.', 'warn');
+      submitBtn.disabled = false;
+      return;
+    }
+
+    fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    }).then(function(){
+      setStatus('Submitted for ' + payload.schoolName + ' — ' + payload.totalYes + ' / ' + payload.totalBooks + ' books marked Yes. PDF downloading…', 'ok');
+      generateYesPdf(payload);
+      submitBtn.disabled = false;
+    }).catch(function(err){
+      setStatus('Could not reach the Google Sheet. Downloaded CSV as a backup.', 'err');
+      toCsvAndDownload(payload);
+      submitBtn.disabled = false;
+    });
+  });
+
+  function setStatus(msg, kind){
+    statusMsg.textContent = msg;
+    statusMsg.className = kind || '';
+  }
+
+  /* ---------------- init ---------------- */
+  buildGroups();
+  renderSummary();
+  renderGroupTallies();
+})();
+
+</script>
+</body>
+</html>
